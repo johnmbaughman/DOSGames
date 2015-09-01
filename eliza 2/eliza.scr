@@ -1,0 +1,34 @@
+
+ELIZA -- an interactive parroting
+
+From Creative Computing magazine; 
+adapted for the IBM PC by Patricia Danielson and Paul Hashfield; 
+readapted for Inform by Ricardo Dague. 
+[type "shut up" to end]
+
+
+Hi! I'm Eliza. What's your problem?
+
+>What makes you think I have a problem?
+Why do you ask?
+
+>To find out why YOU are asking.
+Does that question interest you?
+
+>Well does it interest you??
+We were discussing you--not me.
+
+>No we werent.
+Are you saying no just to be negative?
+
+>That's the truth.
+Say, do you have any psychological problems?
+
+>Yeah. I'm being nagged by a blasted computer1
+Did you come to me because you are being nagged by a blasted computer1?
+
+>You're a nit and whoever wrote you is a NIT.
+What makes you think I am a nit and whoever wrote I is a nit?
+
+>SHUT UP
+Okay if you feel that way I'll shut up.

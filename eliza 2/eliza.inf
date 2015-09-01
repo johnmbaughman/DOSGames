@@ -1,0 +1,638 @@
+! ELIZA: a conversation simulation
+! from Creative Computing magazine
+! adapted for the IBM PC by patricia danielson and Paul Hashfield
+! readapted for Inform by Ricardo Dague (February 1999)
+!
+! I was naked when I programmed this.
+
+constant grammar__version = 2;
+
+[ Main; Main_(); ];
+
+array conjugate -->
+    'are' 'am'
+    'were' 'was'
+    'you' 'i//'
+    'your' 'my'
+    'i^ve' 'you^ve'
+    'i^m' 'you^re'
+    'me' 'you'
+    $ffff;
+
+global parrot_x = ";-)";
+
+[ parrot str punc pl x w i;
+    pl = ParseLen();
+    if(parrot_x == pl)
+    	"You will have to elaborate more for me to help you.";
+    print (string)str;
+    x = parrot_x-1;
+    for(: parrot_x < pl: parrot_x++)
+    {
+	w = WordNth(parrot_x);
+	for(i = 0: conjugate-->i ~= w or -1: i++)
+	    ;
+	if(conjugate-->i == w)
+	{
+	    PrSubStr(WordEnd(x),WordStart(parrot_x));
+	    if(i&1) i--; else i++;
+	    switch(conjugate-->i)
+	    {
+	     'i//': print "I";
+	     'i^ve': print "I've";
+	     'i^m': print "I'm";
+	     default: print (address)conjugate-->i;
+	    }
+	    x = parrot_x;
+	}
+    }
+    x = WordEnd(x);
+    i = BufferEnd();
+    if(i > x && (i-1)->0 == '.' or '?' or 33)   ! 33 == '!'
+       	i--;
+    PrSubStr(x,i);
+    if(punc) print "."; else print "?";
+];
+
+array buffer->121;
+array bufsave->121;
+array parse->65;
+
+[ PrSubStr s e;
+    while(s < e) print (char)s++->0;
+];
+
+[ BufferEnd; return buffer + 2 + buffer->1; ];
+
+[ ParseLen; return parse->1; ];
+
+[ WordStart x; return buffer + parse->(5+4*x); ];
+
+[ WordEnd x; return WordStart(x) + parse->(4+4*x); ];
+
+[ WordNth x;
+    if(x < ParseLen())
+    	return parse-->(1+2*x);
+    return -1;
+];
+
+global dict_nlines;
+global dict_addr;
+global dict_nextaddr;
+
+[ DictVerb x;
+    if(x && (x->#dict_par1 & 1))
+    {
+	dict_nextaddr = (0-->7)-->(255 - x->#dict_par2);
+	dict_nlines = dict_nextaddr++->0;
+	rtrue;
+    }
+    rfalse;
+];
+
+[ DictLine x;
+    if(dict_nlines == 0) return -1;
+    dict_nlines--;
+    dict_addr = dict_nextaddr;
+    x = 0;
+    while(DictToken(x) & 15 ~= 15)
+	x++;
+    dict_nextaddr = dict_addr + (3+3*x);
+    return x;
+];
+
+[ DictAction;
+    return dict_addr-->0;
+];
+
+[ DictToken x;
+    return (dict_addr + (2+3*x))->0;
+];
+
+[ DictValue x;
+    return (dict_addr + (3+3*x))-->0;
+];
+
+[ Main_ pl ll i j k action;
+    print "Would you like a transcript? (Y/N)^";
+    @read_char 1 i;
+    while(i ~= 'y' or 'Y' or 'n' or 'N')
+    {
+    	print "Please enter Y or N.^";
+    	@read_char 1 i;
+    }
+    if(i == 'y' or 'Y')
+    	@output_stream 2;
+    style bold; print "^ELIZA"; style roman;
+    print " -- an interactive parroting^^From Creative Computing \
+	magazine; ^adapted for the IBM PC by Patricia Danielson and \
+	Paul Hashfield; ^readapted for Inform by Ricardo Dague. \
+	^[type ~shut up~ to end]";
+    bufsave->0 = 1;
+    print "^^^Hi! I'm Eliza. What's your problem?^";
+    for(::)
+    {
+	do {
+	    print "^>";
+	    buffer->0 = 120; parse->0 = 15;
+	    read buffer parse;
+	    for(i = 0: i < 121: i++)
+	    	if(buffer->i == '?')
+		    buffer->i = '.';
+	    @tokenise buffer parse;
+	    pl = ParseLen();
+	} until(pl);
+	for(i = 0: i < 121: i++)
+	    if(bufsave->i ~= buffer->i)
+		jump INEQUAL;
+	print "Please don't repeat yourself!^";
+	continue;
+	.INEQUAL;
+	for(i = 0: i < 121: i++)
+	    bufsave->i = buffer->i;
+	if(WordNth(0) == 'shut')
+	{
+	    print "Okay if you feel that way I'll shut up.^";
+	    break;
+	}
+	parrot_x = 0;
+	action = ##Default;
+	for(i = 0: i < pl: i++)
+	    if(DictVerb(WordNth(i)))
+		while((ll = DictLine()) >= 0)
+		{
+		    j = i+1;
+		    for(k = 0: k < ll && DictValue(k) == WordNth(j):
+			k++)
+		    {
+			j++;
+		    }
+		    if(k == ll)
+		    {
+			parrot_x = j;
+			action = DictAction();
+			jump FOUND;
+		    }
+		}
+	.FOUND;
+	indirect(#actions_table-->action);
+    }
+];
+
+global canyou_x = 1;
+
+[ CanYouSub;
+    switch(canyou_x)
+    {
+     1: parrot("Don't you believe that I can");
+     2: print "Perhaps you would like to be like me.";
+     3: parrot("You want me to be able to");
+    }
+    print "^";
+    if(++canyou_x == 4) canyou_x = 1;
+];
+
+global cani_x = 1;
+
+[ CanISub;
+    switch(cani_x)
+    {
+     1: parrot("Perhaps you don't want to",1);
+     2: parrot("Do you want to be able to");
+    }
+    print "^";
+    if(++cani_x == 3) cani_x = 1;
+];
+
+global youare_x = 1;
+
+[ YouAreSub;
+    switch(youare_x)
+    {
+     1: parrot("What makes you think I am");
+     2: parrot("Does it please you to believe I am");
+     3: parrot("Perhaps you would like to be",1);
+     4: parrot("Do you sometimes wish you were");
+    }
+    print "^";
+    if(++youare_x == 5) youare_x = 1;
+];
+
+global idont_x = 1;
+
+[ IDontSub;
+    switch(idont_x)
+    {
+     1: parrot("Don't you really");
+     2: parrot("Why don't you");
+     3: parrot("Do you wish to be able to");
+     4: "Does that trouble you?";
+    }
+    print "^";
+    if(++idont_x == 5) idont_x = 1;
+];
+
+global ifeel_x = 1;
+
+[ IFeelSub;
+    switch(ifeel_x)
+    {
+     1: parrot("Do you often feel");
+     2: parrot("Do you enjoy feeling");
+    }
+    print "^";
+    if(++ifeel_x == 3) ifeel_x = 1;
+];
+
+global whydontyou_x = 1;
+
+[ WhyDontYouSub;
+    switch(whydontyou_x)
+    {
+     1: parrot("Do you really believe I don't");
+     2: parrot("Perhaps in good time I will",1);
+     3: parrot("Do you want me to");
+    }
+    print "^";
+    if(++whydontyou_x == 4) whydontyou_x = 1;
+];
+
+global whycanti_x = 1;
+
+[ WhyCantISub;
+    switch(whycanti_x)
+    {
+     1: parrot("Do you think you should be able to");
+     2: parrot("Why can't you");
+    }
+    print "^";
+    if(++whycanti_x == 3) whycanti_x = 1;
+];
+
+global areyou_x = 1;
+
+[ AreYouSub;
+    switch(areyou_x)
+    {
+     1: parrot("Why are you interested in whether or not I am");
+     2: parrot("Would you prefer if I were not");
+     3: parrot("Perhaps in your fantasies I am",1);
+    }
+    print "^";
+    if(++areyou_x == 4) areyou_x = 1;
+];
+
+global icant_x = 1;
+
+[ ICantSub;
+    switch(icant_x)
+    {
+     1: parrot("How do you know you can't");
+     2: print "Have you tried?";
+     3: parrot("Perhaps you can now",1);
+    }
+    print "^";
+    if(++icant_x == 4) icant_x = 1;
+];
+
+global iam_x = 1;
+
+[ IAmSub;
+    switch(iam_x)
+    {
+     1: parrot("Did you come to me because you are");
+     2: parrot("How long have you been");
+     3: parrot("Do you believe it is normal to be");
+     4: parrot("Do you enjoy being");
+    }
+    print "^";
+    if(++iam_x == 5) iam_x = 1;
+];
+
+global you_x = 1;
+
+[ YouSub;
+    switch(you_x)
+    {
+     1: print "We were discussing you--not me.";
+     2: parrot("Oh, i",1);
+     3: print "You're not really talking about me, are you?";
+    }
+    print "^";
+    if(++you_x == 4) you_x = 1;
+];
+
+global iwant_x = 1;
+
+[ IWantSub;
+    switch(iwant_x)
+    {
+     1: parrot("What would it mean to you if you got");
+     2: parrot("Why do you want");
+     3: parrot("Suppose you soon got",1);
+     4: parrot("What if you never got");
+     5: parrot("I sometimes also want",1);
+    }
+    print "^";
+    if(++iwant_x == 6) iwant_x = 1;
+];
+
+global what_x = 1;
+
+[ WhatSub;
+    switch(what_x)
+    {
+     1: print "Why do you ask?";
+     2: print "Does that question interest you?";
+     3: print "What answer would please you the most?";
+     4: print "What do you think?";
+     5: print "Are such questions on your mind often?";
+     6: print "What is it that you really want to know?";
+     7: print "Have you asked anyone else?";
+     8: print "Have you asked such questions before?";
+     9: print "What else comes to mind when you ask that?";
+    }
+    print "^";
+    if(++what_x == 10) what_x = 1;
+];
+
+global name_x = 1;
+
+[ NameSub;
+    switch(name_x)
+    {
+     1: print "Names don't interest me.";
+     2: print "I don't care about names --please go on.";
+    }
+    print "^";
+    if(++name_x == 3) name_x = 1;
+];
+
+global cause_x = 1;
+
+[ CauseSub;
+    switch(cause_x)
+    {
+     1: print "Is that the real reason?";
+     2: print "Don't any other reasons come to mind?";
+     3: print "Does that reason explain anything else?";
+     4: print "What other reasons might there be?";
+    }
+    print "^";
+    if(++cause_x == 5) cause_x = 1;
+];
+
+global sorry_x = 1;
+
+[ SorrySub;
+    switch(sorry_x)
+    {
+     1: print "Please don't apologize!";
+     2: print "Apologies are not necessary.";
+     3: print "What feelings do you have when you apologize?";
+     4: print "Don't be so defensive!";
+    }
+    print "^";
+    if(++sorry_x == 5) sorry_x = 1;
+];
+
+global dream_x = 1;
+
+[ DreamSub;
+    switch(dream_x)
+    {
+     1: print "What does that dream suggest to you?";
+     2: print "Do you dream often?";
+     3: print "What persons appear in your dreams?";
+     4: print "Are you disturbed by your dreams?";
+    }
+    print "^";
+    if(++dream_x == 5) dream_x = 1;
+];
+
+[ HelloSub;
+    print "How do you do ...please state your problem.";
+];
+
+global maybe_x = 1;
+
+[ MaybeSub;
+    switch(maybe_x)
+    {
+     1: print "You don't seem quite certain.";
+     2: print "Why the uncertain tone?";
+     3: print "Can't you be more positive?";
+     4: print "You aren't sure?";
+     5: print "Don't you know?";
+    }
+    print "^";
+    if(++maybe_x == 6) maybe_x = 1;
+];
+
+global no_x = 1;
+
+[ NoSub;
+    switch(no_x)
+    {
+     1: print "Are you saying no just to be negative?";
+     2: print "You are being a bit negative.";
+     3: print "Why not?";
+     4: print "Are you sure?";
+     5: print "Why no?";
+    }
+    print "^";
+    if(++no_x == 6) no_x = 1;
+];
+
+global your_x = 1;
+
+[ YourSub;
+    switch(your_x)
+    {
+     1: parrot("Why are you concerned about my");
+     2: parrot("What about your own");
+    }
+    print "^";
+    if(++your_x == 3) your_x = 1;
+];
+
+global always_x = 1;
+
+[ AlwaysSub;
+    switch(always_x)
+    {
+     1: print "Can you think of a specific example?";
+     2: print "When?";
+     3: print "What are you thinking of?";
+     4: print "Really, always?";
+    }
+    print "^";
+    if(++always_x == 5) always_x = 1;
+];
+
+global think_x = 1;
+
+[ ThinkSub;
+    switch(think_x)
+    {
+     1: print "Do you really think so?";
+     2: parrot("But you are not sure you",1);
+     3: parrot("Do you doubt you");
+    }
+    print "^";
+    if(++think_x == 4) think_x = 1;
+];
+
+global alike_x = 1;
+
+[ AlikeSub;
+    switch(alike_x)
+    {
+     1: print "In what way?";
+     2: print "What resemblance do you see?";
+     3: print "What does the similarity suggest to you?";
+     4: print "What other connections do you see?";
+     5: print "Could there really be some connection?";
+     6: print "How?";
+     7: print "You seem quite positive.";
+    }
+    print "^";
+    if(++alike_x == 8) alike_x = 1;
+];
+
+global yes_x = 1;
+
+[ YesSub;
+    switch(yes_x)
+    {
+     1: print "Are you sure?";
+     2: print "I see.";
+     3: print "I understand.";
+    }
+    print "^";
+    if(++yes_x == 4) yes_x = 1;
+];
+
+global friend_x = 1;
+
+[ FriendSub;
+    switch(friend_x)
+    {
+     1: print "Why do you bring up the topic of friends?";
+     2: print "Do your friends worry you?";
+     3: print "Do your friends pick on you?";
+     4: print "Are you sure you have any friends?";
+     5: print "Do you impose on your friends?";
+     6: print "Perhaps your love for friends worries you.";
+    }
+    print "^";
+    if(++friend_x == 7) friend_x = 1;
+];
+
+global computer_x = 1;
+
+[ ComputerSub;
+    switch(computer_x)
+    {
+     1: print "Do computers worry you?";
+     2: print "Are you talking about me in particular?";
+     3: print "Are you frightened by machines?";
+     4: print "Why do you mention computers?";
+     5: print "What do you think machines have to do with your problem?";
+     6: print "Don't you think computers can help people?";
+     7: print "What is it about machines that worries you?";
+    }
+    print "^";
+    if(++computer_x == 8) computer_x = 1;
+];
+
+global default_x = 1;
+
+[ DefaultSub;
+    switch(default_x)
+    {
+     1: print "Say, do you have any psychological problems?";
+     2: print "What does that suggest to you?";
+     3: print "I see.";
+     4: print "I'm not sure I understand you fully.";
+     5: print "Come come elucidate your thoughts.";
+     6: print "Can you elaborate on that?";
+     7: print "That is quite interesting.";
+    }
+    print "^";
+    if(++default_x == 8) default_x = 1;
+];
+
+verb 'can'
+    * 'you'				-> CanYou
+    * 'i//'				-> CanI;
+
+verb 'you'
+    * 'are'				-> YouAre
+    *					-> You;
+
+verb 'you^re'
+    *					-> YouAre;
+
+verb 'i//'
+    * 'don^t'				-> IDont
+    * 'feel'				-> IFeel
+    * 'can^t'				-> ICant
+    * 'am'				-> IAm
+    * 'want'				-> IWant;
+
+verb 'why'
+    * 'don^t' 'you'			-> WhyDontYou
+    * 'can^t' 'i//'			-> WhyCantI
+    * 					-> What;
+
+verb 'are'
+    * 'you'				-> AreYou;
+
+verb 'i^m'
+    *					-> IAm;
+
+verb 'what' 'how' 'who' 'where' 'when'
+    *					-> What;
+
+verb 'name'
+    *					-> Name;
+
+verb 'cause'
+    *					-> Cause;
+
+verb 'sorry'
+    *					-> Sorry;
+
+verb 'dream'
+    *					-> Dream;
+
+verb 'hello' 'hi'
+    *					-> Hello;
+
+verb 'maybe'
+    *					-> Maybe;
+
+verb 'no'
+    *					-> No;
+
+verb 'your'
+    *					-> Your;
+
+verb 'always'
+    *					-> Always;
+
+verb 'think'
+    *					-> Think;
+
+verb 'alike'
+    *					-> Alike;
+
+verb 'yes'
+    *					-> Yes;
+
+verb 'friend'
+    *					-> Friend;
+
+verb 'computer'
+    *					-> Computer;

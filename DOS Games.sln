@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gorillas", "Gorillas\Gorillas.csproj", "{485C313E-DD2F-43CB-BAF0-706247E758DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eliza", "Eliza\Eliza.csproj", "{D5254ECE-CE0B-4C21-BDB3-B31C79773C4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{485C313E-DD2F-43CB-BAF0-706247E758DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485C313E-DD2F-43CB-BAF0-706247E758DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485C313E-DD2F-43CB-BAF0-706247E758DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485C313E-DD2F-43CB-BAF0-706247E758DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5254ECE-CE0B-4C21-BDB3-B31C79773C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5254ECE-CE0B-4C21-BDB3-B31C79773C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5254ECE-CE0B-4C21-BDB3-B31C79773C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5254ECE-CE0B-4C21-BDB3-B31C79773C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
