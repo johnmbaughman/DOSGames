@@ -39,6 +39,7 @@
     <Compile Include="Conjugations.cs" />
     <Compile Include="Replies.cs" />
     <Compile Include="EndProgramKeyWords.cs" />
+    <Compile Include="ReplyMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
