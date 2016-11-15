@@ -1,6 +1,0 @@
-/Users/johnb/Desktop/DOS Games/Eliza/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
-/Users/johnb/Desktop/DOS Games/Eliza/obj/x86/Debug/Eliza.Original.eliza.bas
-/Users/johnb/Desktop/DOS Games/Eliza/bin/Debug/Eliza.exe.mdb
-/Users/johnb/Desktop/DOS Games/Eliza/bin/Debug/Eliza.exe
-/Users/johnb/Desktop/DOS Games/Eliza/obj/x86/Debug/Eliza.exe
-/Users/johnb/Desktop/DOS Games/Eliza/obj/x86/Debug/Eliza.exe.mdb
